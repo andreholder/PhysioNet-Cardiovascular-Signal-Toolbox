@@ -27,17 +27,17 @@ clear all
 clc
 
 % Where are the data, in this demo they are located in a subfolder
-InputFolder = [pwd filesep 'TestData' filesep 'mitdb-Arrhythmia']; % path to the folder where you data are located
-SigName = '200m';
+InputFolder = [pwd filesep 'TestData']; % path to the folder where you data are located
+SigName = 'TestRawECG.mat';
 
 % load the ecg using rdmat
-[tm,sig,Fs] = rdmat([InputFolder filesep SigName]);
+load([InputFolder filesep SigName]);
 % the signal has two channels, from now on we will use just one 
-ecg = sig(:,1);
+ecg = signal(:,1);
 
 % plot the signal
 figure(1)
-plot(tm,ecg);
+plot(ecg);
 xlabel('[s]');
 ylabel('[mV]')
 
@@ -48,14 +48,14 @@ ylabel('[mV]')
 
 HRVparams = InitializeHRVparams('Demo');
 % set the exact sampling frequency usign the one from the loaded signal
-HRVparams.Fs = Fs;
+HRVparams.Fs = 360;
 % call the function that perform peak detection
 r_peaks = jqrs(ecg,HRVparams);
 
 % plot the detected r_peaks on the top of the ecg signal
 figure(1)
 hold on;
-plot(r_peaks./Fs, ecg(r_peaks),'o');
+plot(r_peaks, ecg(r_peaks),'o');
 legend('ecg signal', 'detected R peaks')
 
 
