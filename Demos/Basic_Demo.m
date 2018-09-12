@@ -65,6 +65,8 @@ legend('ecg signal', 'detected R peaks')
 % minute) from the R-R intervals, and determine what percentage of consecutive heart beats are
 % irregular (defined below as a HR difference > 1). This is then plotted in
 % a pie chart at the end.
+% Note: The HRVparams.Fs constant was changed to 125 (See above for
+% details)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Get HR measurements (in secs) for every R-R (r_peak) interval
@@ -74,7 +76,7 @@ for i=1:length(hr)
     hr(i)=(1/((r_peaks(i+1)-r_peaks(i))/HRVparams.Fs))*60;
 end
 
-% Detect irregular dysrhythmias (variability in consecutive HRs > 8)
+% Detect irregular dysrhythmias (variability in consecutive HRs > 1)
 irreg = zeros(length(hr)-1,1); %Create a new vector for HR measurements from r_peaks
 irreg=irreg+9; %irreg set to dummy values as it will be changed to boolean values
 for i = 1:length(irreg)
@@ -86,9 +88,9 @@ end
 %See distribution of heart rates that vary by more than 1
 tallies=[0 0]; %Create a variable to tally 0s and 1s from irreg to use in pie chart
 for i = 1:length(irreg)
-    if irreg(i)==0 %If HR<=1
+    if irreg(i)==0 %If change in 2 consecultive HR<=1
         tallies(1)=tallies(1)+1;
-    elseif irreg(i)==1 %If HR>1
+    elseif irreg(i)==1 %If change in 2 consecultive HR>1
         tallies(2)=tallies(2)+1;
     end
 end
@@ -98,7 +100,7 @@ distrib=[0 0];
 distrib(1)=tallies(1)/length(irreg);
 distrib(2)=tallies(2)/length(irreg);
 
-%Create a pie chart
+%Create a pie chart of the frequency reg and irreg consecutive rhythms
 figure(2)
 pie(distrib)
 title('Frequency of irregular consecutive rhythms')
