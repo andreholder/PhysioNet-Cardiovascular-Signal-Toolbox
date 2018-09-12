@@ -48,7 +48,7 @@ ylabel('[mV]')
 
 HRVparams = InitializeHRVparams('Demo');
 % set the exact sampling frequency usign the one from the loaded signal
-HRVparams.Fs = 125;
+HRVparams.Fs = 125; % Changed from 360 based on my observations of the time array
 % call the function that perform peak detection
 r_peaks = jqrs(ecg,HRVparams);
 
@@ -57,6 +57,15 @@ figure(1)
 hold on;
 plot(r_peaks, ecg(r_peaks),'o');
 legend('ecg signal', 'detected R peaks')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From this point onwards code was added by Andre Holder on 09/12/2018 as
+% part of the lab work for BMI500.
+% The purpose of the code below is to extract heart rates (in beats per 
+% minute) from the R-R intervals, and determine what percentage of consecutive heart beats are
+% irregular (defined below as a HR difference > 1). This is then plotted in
+% a pie chart at the end.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Get HR measurements (in secs) for every R-R (r_peak) interval
 hr=zeros(length(r_peaks)-1,1); %Create a new vector for HR measurements from r_peaks
