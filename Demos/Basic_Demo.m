@@ -48,7 +48,7 @@ ylabel('[mV]')
 
 HRVparams = InitializeHRVparams('Demo');
 % set the exact sampling frequency usign the one from the loaded signal
-HRVparams.Fs = 360;
+HRVparams.Fs = 125;
 % call the function that perform peak detection
 r_peaks = jqrs(ecg,HRVparams);
 
@@ -58,9 +58,39 @@ hold on;
 plot(r_peaks, ecg(r_peaks),'o');
 legend('ecg signal', 'detected R peaks')
 
+% Get HR measurements (in secs) for every R-R (r_peak) interval
+hr=zeros(length(r_peaks)-1,1); %Create a new vector for HR measurements from r_peaks
+for i=1:length(hr)
+    %Convert R-R interval in sec to HR (beats/min), assuming ECG sample frequency of 256 Hz
+    hr(i)=(1/((r_peaks(i+1)-r_peaks(i))/HRVparams.Fs))*60;
+end
 
+% Detect irregular dysrhythmias (variability in consecutive HRs > 8)
+irreg = zeros(length(hr)-1,1); %Create a new vector for HR measurements from r_peaks
+irreg=irreg+9; %irreg set to dummy values as it will be changed to boolean values
+for i = 1:length(irreg)
+    %Identify variation in consecutive HRs (change in HR>1) 
+    if abs(hr(i+1)-hr(i))>1, irreg(i)=1; else irreg(i)=0; 
+    end
+end
 
+%See distribution of heart rates that vary by more than 1
+tallies=[0 0]; %Create a variable to tally 0s and 1s from irreg to use in pie chart
+for i = 1:length(irreg)
+    if irreg(i)==0 %If HR<=1
+        tallies(1)=tallies(1)+1;
+    elseif irreg(i)==1 %If HR>1
+        tallies(2)=tallies(2)+1;
+    end
+end
 
+%Get percentages of each category
+distrib=[0 0];
+distrib(1)=tallies(1)/length(irreg);
+distrib(2)=tallies(2)/length(irreg);
 
-
-
+%Create a pie chart
+figure(2)
+pie(distrib)
+title('Frequency of irregular consecutive rhythms')
+legend('Regular', 'Irregular')
